@@ -5,7 +5,11 @@
   "author": "yujingcheng <yujingcheng@meituan.com>",
   "license": "MIT",
   "dependencies": {
-    "@types/node": "^18.0.0"
+    "@types/node": "^18.0.0",
+    "nodemon": "*"
+  },
+  "scripts": {
+    "project": "nodemon ./project/index.mjs"
   },
   "engines": {
     "node": ">=14 <17",
