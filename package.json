@@ -1,0 +1,14 @@
+{
+  "name": "nodejs-webblog-from-scratch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "yujingcheng <yujingcheng@meituan.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=14 <17",
+    "yarn": ">=1.22.18"
+  }
+}
