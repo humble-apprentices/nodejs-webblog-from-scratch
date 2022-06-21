@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { open, access, mkdir } from 'node:fs/promises';
 
-const { O_RDWR, O_CREAT } = constants;
+const { O_RDWR, O_CREAT, O_TRUNC } = constants;
 
 const DATA_DIR = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -28,7 +28,7 @@ const getDataFilePath = (name) => join(
 
 // fs constants: https://nodejs.org/api/fs.html#fspromisesconstants
 const writeDataFileContent = async (name, content) => {
-  const file = await open(getDataFilePath(name), O_RDWR);
+  const file = await open(getDataFilePath(name), O_RDWR | O_TRUNC);
   await file.write(Buffer.from(content));
   await file.sync();
   file.close();
