@@ -1,5 +1,5 @@
 // // 1 资源： CPU、内存
-// const fs = require('fs'); // 是否引用会影响内存使用的大小
+// const fs = require('node:fs'); // 是否引用会影响内存使用的大小
 // console.log(process.cpuUsage())
 // Buffer.alloc(1000)
 // console.log(process.memoryUsage())
@@ -70,5 +70,5 @@
 // console.log(11);
 // console.log(22);
 
-// const fs = require('fs');
+// const fs = require('node:fs');
 // fs.createReadStream('text.txt').pipe(process.stdout)

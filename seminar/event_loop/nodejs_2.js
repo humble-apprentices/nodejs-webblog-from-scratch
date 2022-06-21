@@ -1,6 +1,6 @@
 // console.log(0);
 
-const fs = require("fs");
+const fs = require('node:fs');
 
 // 示例二
 // 老版本是某个阶段的队列全部执行完才执行微任务，新版变为和浏览器一样

@@ -1,6 +1,6 @@
 // console.log(0);
 
-const fs = require("fs");
+const fs = require('node:fs');
 // 示例四
 console.log('start');
 
