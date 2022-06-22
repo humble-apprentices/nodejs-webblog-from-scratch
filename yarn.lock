@@ -230,6 +230,13 @@ end-of-stream@^1.1.0:
   dependencies:
     once "^1.4.0"
 
+es-mime-types@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.npmmirror.com/es-mime-types/-/es-mime-types-0.1.4.tgz#a88584e7fc9b589c289f125663d8e2f8d72d7df0"
+  integrity sha512-rUrmfrUIHU/4ykYB+YH80LDiSpmn6sE/A9E8EsFZP4LCtf/PH+ju6d6goFJ8fsGf81pRtQn1cJSmp8JGA9YkfQ==
+  dependencies:
+    mime-db "^1.50.0"
+
 escape-goat@^2.0.0:
   version "2.1.1"
   resolved "https://registry.npmmirror.com/escape-goat/-/escape-goat-2.1.1.tgz#1b2dc77003676c457ec760b2dc68edb648188675"
@@ -453,6 +460,11 @@ make-dir@^3.0.0:
   integrity sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==
   dependencies:
     semver "^6.0.0"
+
+mime-db@^1.50.0:
+  version "1.52.0"
+  resolved "https://registry.npmmirror.com/mime-db/-/mime-db-1.52.0.tgz#bbabcdc02859f4987301c856e3387ce5ec43bf70"
+  integrity sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==
 
 mimic-response@^1.0.0, mimic-response@^1.0.1:
   version "1.0.1"

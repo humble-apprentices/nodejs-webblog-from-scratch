@@ -1,0 +1,15 @@
+body {
+  background-color: pink;
+}
+.container {
+  width: 800px;
+  margin: 100px auto;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+img {
+  width: 200px;
+}
