@@ -8,7 +8,11 @@
     "es-mime-types": "^0.1.4"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0"
+    "@types/node": "^18.0.0",
+    "nodemon": "*"
+  },
+  "scripts": {
+    "project": "npx nodemon ./project/index.mjs"
   },
   "engines": {
     "node": ">=14 <17",
