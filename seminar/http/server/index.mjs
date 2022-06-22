@@ -61,11 +61,13 @@ server.on('request', (req, res) => {
     }
     readFile(absPath, (err, data) => {
       console.log(absPath);
-      if (err) {
-        res.statusCode = 500
+      if (!err) {
+        res.writeHead(500, {
+          'Content-type': `text/plain;charset=utf-8`
+        })
         res.end('服务器错误')
       } else {
-        res.setHeader('Content-type', `${lookup(absPath)};chartset=utf-8`)
+        res.setHeader('Content-type', `${lookup(absPath)};charset=utf-8`)
         res.end(data)
       }
     })
