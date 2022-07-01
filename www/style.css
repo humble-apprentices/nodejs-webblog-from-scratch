@@ -1,0 +1,31 @@
+body {
+  background-color: #ffe4c4;
+}
+.container {
+  padding: 20px;
+  color: #222;
+  align-items: center;
+}
+.box-alticle {
+  background: white;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+}
+.alticle-name {
+  display: flex;
+  font-size: 18px;
+  line-height: 25px;
+}
+.alticle-name::before {
+  content: "";
+  display: inline-block;
+  background: #ffdab9;
+  width: 3px;
+  height: 25px;
+  line-height: 25px;
+  margin-right: 5px;
+}
+.m-t-10 {
+  margin-top: 10px;
+}

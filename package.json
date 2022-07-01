@@ -6,10 +6,14 @@
   "license": "MIT",
   "dependencies": {
     "@types/node": "^18.0.0",
-    "nodemon": "*"
+    "es-mime-types": "^0.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16"
   },
   "scripts": {
-    "project": "nodemon ./project/index.mjs"
+    "project": "nodemon ./project/index.mjs",
+    "server": "nodemon ./server/index.mjs"
   },
   "engines": {
     "node": ">=14 <17",
