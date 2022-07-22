@@ -13,7 +13,7 @@
   },
   "scripts": {
     "project": "nodemon ./project/index.mjs",
-    "server": "nodemon ./server/index.mjs"
+    "server": "nodemon ./original/server/index.mjs"
   },
   "engines": {
     "node": ">=14 <17",

@@ -27,7 +27,7 @@ server.on("request", (req, res) => {
   let absPath = join(__dirname, "../www", pathname);
   // 获取博客接口
   if (req.url === "/api/getList") {
-    absPath = join(__dirname, "../database", "allarticle.json");
+    absPath = join(__dirname, "../../database", "allarticle.json");
   }
   // 提交博客接口
   if (req.url === "/api/postList") {
@@ -44,13 +44,51 @@ server.on("request", (req, res) => {
         console.log(error);
       }
     });
-    absPath = join(__dirname, "../database", "allarticle.json");
+    absPath = join(__dirname, "../../database", "allarticle.json");
     readFile(absPath, (err, data) => {
       if (!err) {
         res.setHeader("Content-type", `${lookup(absPath)};charset=utf-8`);
         const list = JSON.parse(data);
         list.push(requestBody);
-        const listJson = JSON.stringify(list,null, 4);
+        const listJson = JSON.stringify(list, null, 4);
+        writeFile(absPath, listJson, (err) => {
+          if (!err) {
+            res.end();
+          }
+          console.log("JSON data is saved.");
+        });
+      } else {
+        res.writeHead(500, {
+          "Content-type": "text/html;charset=utf-8",
+        });
+        res.end("服务器错误");
+      }
+    });
+    return;
+  }
+  // 删除博客接口
+  if (req.url === "/api/deleteListItem") {
+    var buffers = [];
+    var requestBody = {};
+    req.on("data", function (chunk) {
+      buffers.push(chunk);
+    });
+    req.on("end", function () {
+      requestBody = Buffer.concat(buffers).toString();
+      try {
+        requestBody = JSON.parse(requestBody);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+    absPath = join(__dirname, "../../database", "allarticle.json");
+    readFile(absPath, (err, data) => {
+      if (!err) {
+        res.setHeader("Content-type", `${lookup(absPath)};charset=utf-8`);
+        const list = JSON.parse(data);
+        list.splice(requestBody.index, 1);
+        // list.push(requestBody);
+        const listJson = JSON.stringify(list, null, 4);
         writeFile(absPath, listJson, (err) => {
           if (!err) {
             res.end();

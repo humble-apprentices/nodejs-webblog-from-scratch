@@ -6,18 +6,23 @@ body {
   color: #222;
   align-items: center;
 }
-.box-alticle {
+.box-article {
+  position: relative;
   background: white;
   padding: 10px;
   margin-bottom: 20px;
   border-radius: 20px;
 }
-.alticle-name {
+.article-name {
   display: flex;
   font-size: 18px;
   line-height: 25px;
 }
-.alticle-name::before {
+.delete-button {
+
+
+}
+.article-name::before {
   content: "";
   display: inline-block;
   background: #ffdab9;
@@ -26,6 +31,13 @@ body {
   line-height: 25px;
   margin-right: 5px;
 }
+.article-content {
+  margin: 10px 0;
+}
 .m-t-10 {
   margin-top: 10px;
+}
+button {
+  border-radius: 20px;
+  background: white;
 }
