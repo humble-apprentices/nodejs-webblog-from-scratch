@@ -61,7 +61,7 @@ server.on('request', (req, res) => {
     }
     readFile(absPath, (err, data) => {
       console.log(absPath);
-      if (!err) {
+      if (err) {
         res.writeHead(500, {
           'Content-type': `text/plain;charset=utf-8`
         })

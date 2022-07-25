@@ -31,13 +31,13 @@ server.on("request", (req, res) => {
   }
   // 提交博客接口
   if (req.url === "/api/postList") {
-    var buffers = [];
+    var dataList = [];
     var requestBody = {};
     req.on("data", function (chunk) {
-      buffers.push(chunk);
+      dataList.push(chunk);
     });
     req.on("end", function () {
-      requestBody = Buffer.concat(buffers).toString();
+      requestBody = Buffer.concat(dataList).toString();
       try {
         requestBody = JSON.parse(requestBody);
       } catch (error) {
@@ -68,13 +68,13 @@ server.on("request", (req, res) => {
   }
   // 删除博客接口
   if (req.url === "/api/deleteListItem") {
-    var buffers = [];
+    var dataList = [];
     var requestBody = {};
     req.on("data", function (chunk) {
-      buffers.push(chunk);
+      dataList.push(chunk);
     });
     req.on("end", function () {
-      requestBody = Buffer.concat(buffers).toString();
+      requestBody = Buffer.concat(dataList).toString();
       try {
         requestBody = JSON.parse(requestBody);
       } catch (error) {
@@ -125,6 +125,7 @@ server.on("request", (req, res) => {
   return;
 });
 
-server.listen(3000, "0.0.0.0", () => {
-  console.log("server is start...");
+server.listen(8080, "0.0.0.0", () => {
+  console.log("App running at:");
+  console.log("Local:   http://localhost:8080");
 });

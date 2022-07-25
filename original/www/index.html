@@ -64,7 +64,7 @@
             if (request.status === 200) {
               document.getElementById("p1").innerHTML = "";
               dealData(JSON.parse(request.responseText));
-              return success(request.responseText);
+              return;
             }
           } else {
             // HTTP请求还在继续...

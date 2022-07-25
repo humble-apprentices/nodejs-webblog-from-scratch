@@ -16,6 +16,7 @@
   },
   "scripts": {
     "project": "nodemon ./project/index.mjs",
+    "server0": "nodemon ./seminar/http/server/index.mjs",
     "server": "nodemon ./original/server/index.mjs"
   },
   "engines": {

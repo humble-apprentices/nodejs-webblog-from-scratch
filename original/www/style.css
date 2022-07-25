@@ -1,17 +1,18 @@
 body {
-  background-color: #ffe4c4;
+  background-color: rgba(60,66,74,0.55);
 }
 .container {
   padding: 20px;
-  color: #222;
+  color: white;
   align-items: center;
 }
 .box-article {
   position: relative;
   background: white;
+  color: rgba(60,66,74);
   padding: 10px;
   margin-bottom: 20px;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 .article-name {
   display: flex;
@@ -19,13 +20,13 @@ body {
   line-height: 25px;
 }
 .delete-button {
-
-
+  border-radius: 20px;
+  background: white;
 }
 .article-name::before {
   content: "";
   display: inline-block;
-  background: #ffdab9;
+  background: #3c424a;
   width: 3px;
   height: 25px;
   line-height: 25px;
@@ -36,8 +37,4 @@ body {
 }
 .m-t-10 {
   margin-top: 10px;
-}
-button {
-  border-radius: 20px;
-  background: white;
 }
