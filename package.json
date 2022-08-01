@@ -9,9 +9,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
-    "es-mime-types": "^0.1.4"
-  },
-  "devDependencies": {
+    "es-mime-types": "^0.1.4",
     "nodemon": "^2.0.16"
   },
   "scripts": {

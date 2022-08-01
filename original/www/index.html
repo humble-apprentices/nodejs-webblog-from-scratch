@@ -10,120 +10,19 @@
   <body>
     <div class="container">
       <div><h1>提交我的博客</h1></div>
-      <div>
+      <form action="/post/api/postList" method="post">
         <div>
           <label>昵称: </label>
-          <input id="set_name" />
+          <input name="name" />
         </div>
         <div class="m-t-10">
           <label>内容: </label>
-          <textarea id="set_content" rows="6" cols="60"></textarea>
+          <textarea name="content" rows="6" cols="60"></textarea>
         </div>
         <button class="m-t-10" id="post-buttom">提交</button>
-      </div>
+      </form>
       <div><h1>博客目录</h1></div>
-      <div id="p1"></div>
+      <div id="p1">$$ENTRY_LIST$$</div>
     </div>
-    <script>
-      var request = new XMLHttpRequest();
-      document.getElementById("post-buttom").onclick = postList;
-      // 循环展示博客列表
-      function dealData(data) {
-        data.forEach((item, index) => {
-          // 设置box
-          oBox = document.createElement("div");
-          oBox.setAttribute("class", "box-article");
-          // 展示姓名
-          oElentment = document.createElement("div");
-          oElentment.innerHTML = item.name;
-          oElentment.setAttribute("class", "article-name");
-          oBox.appendChild(oElentment);
-          // 展示内容
-          oElentment = document.createElement("div");
-          oElentment.setAttribute("class", "article-content");
-          oElentment.innerHTML = item.content;
-          oBox.appendChild(oElentment);
-          // 删除按钮
-          oElentment = document.createElement("button");
-          oElentment.innerHTML = "删除";
-          oElentment.setAttribute("class", "delete-button");
-          oElentment.setAttribute("id", `delete-button${index}`);
-          oElentment.dataset.index = index;
-          oBox.appendChild(oElentment);
-          // 插入盒子
-          document.getElementById("p1").appendChild(oBox);
-        });
-      }
-      // 获取博客列表
-      function getList() {
-        request.onreadystatechange = function () {
-          // 状态发生变化时，函数被回调
-          if (request.readyState === 4) {
-            // 成功完成
-            // 判断响应结果:
-            if (request.status === 200) {
-              document.getElementById("p1").innerHTML = "";
-              dealData(JSON.parse(request.responseText));
-              return;
-            }
-          } else {
-            // HTTP请求还在继续...
-          }
-        };
-        // 发送请求:
-        request.open("GET", "get/api/getList");
-        request.send();
-      }
-      // 上传博客
-      function postList() {
-        request.onreadystatechange = function () {
-          // 状态发生变化时，函数被回调
-          if (request.readyState === 4) {
-            if (request.status === 200) {
-              getList();
-            }
-          }
-        };
-        // 发送请求:
-        request.open("POST", "post/api/postList");
-        request.setRequestHeader("Content-type", "application/json");
-        request.send(
-          JSON.stringify({
-            name: document.getElementById("set_name").value,
-            content: document.getElementById("set_content").value,
-          })
-        );
-      }
-      function deleteListEvent() {
-        document.getElementById("p1").addEventListener("click", function (ev) {
-          var target = ev.target || ev.srcElement;
-          if (target.nodeName.toLowerCase() == "button") {
-            deleteListItem(target.dataset["index"]);
-          }
-        });
-      }
-      function deleteListItem(index) {
-        console.log(index);
-        request.onreadystatechange = function () {
-          // 状态发生变化时，函数被回调
-          if (request.readyState === 4) {
-            if (request.status === 200) {
-              getList();
-            }
-          }
-        };
-        // 发送请求:
-        request.open("POST", "post/api/deleteListItem");
-        request.setRequestHeader("Content-type", "application/json");
-        request.send(
-          JSON.stringify({
-            index: index,
-          })
-        );
-      }
-      // 执行
-      getList();
-      deleteListEvent();
-    </script>
   </body>
 </html>
