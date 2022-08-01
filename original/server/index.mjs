@@ -26,11 +26,11 @@ server.on("request", (req, res) => {
   // 动态生成相对路径
   let absPath = join(__dirname, "../www", pathname);
   // 获取博客接口
-  if (req.url === "/api/getList") {
+  if (req.url === "/get/api/getList") {
     absPath = join(__dirname, "../../database", "allarticle.json");
   }
   // 提交博客接口
-  if (req.url === "/api/postList") {
+  if (req.url === "/post/api/postList") {
     var dataList = [];
     var requestBody = {};
     req.on("data", function (chunk) {
@@ -67,7 +67,7 @@ server.on("request", (req, res) => {
     return;
   }
   // 删除博客接口
-  if (req.url === "/api/deleteListItem") {
+  if (req.url === "/post/api/deleteListItem") {
     var dataList = [];
     var requestBody = {};
     req.on("data", function (chunk) {

@@ -17,7 +17,9 @@
   "scripts": {
     "project": "nodemon ./project/index.mjs",
     "server0": "nodemon ./seminar/http/server/index.mjs",
-    "server": "nodemon ./original/server/index.mjs"
+    "server": "nodemon ./original/server/index.mjs",
+    "stream": "nodemon ./stream/server/index.mjs",
+    "study": "nodemon ./stream/study/index.mjs"
   },
   "engines": {
     "node": ">=14 <17",

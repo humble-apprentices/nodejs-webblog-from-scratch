@@ -71,7 +71,7 @@
           }
         };
         // 发送请求:
-        request.open("GET", "/api/getList");
+        request.open("GET", "get/api/getList");
         request.send();
       }
       // 上传博客
@@ -85,7 +85,7 @@
           }
         };
         // 发送请求:
-        request.open("POST", "/api/postList");
+        request.open("POST", "post/api/postList");
         request.setRequestHeader("Content-type", "application/json");
         request.send(
           JSON.stringify({
@@ -113,7 +113,7 @@
           }
         };
         // 发送请求:
-        request.open("POST", "/api/deleteListItem");
+        request.open("POST", "post/api/deleteListItem");
         request.setRequestHeader("Content-type", "application/json");
         request.send(
           JSON.stringify({
