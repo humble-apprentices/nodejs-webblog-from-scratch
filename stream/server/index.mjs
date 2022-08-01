@@ -23,16 +23,16 @@ server.on("request", (req, res) => {
   // 获取index.html
   if (req.url === "/") {
     // absPath = join(absPath, "index.html");
-    let absPath = join(__dirname, "../../database", "fanyi.txt");
+    let absPath = join(__dirname, "../server", "200m.txt");
 
     // 获取静态资源
     // 1.使用readStream
-    //   let readStream = createReadStream(absPath);
-    //   readStream.pipe(res);
+      let readStream = createReadStream(absPath);
+      readStream.pipe(res);
     // 2.使用readFile
-    readFile(absPath, (err, data) => {
-      res.end(data);
-    });
+    // readFile(absPath, (err, data) => {
+    //   res.end(data);
+    // });
   }
   return;
 });

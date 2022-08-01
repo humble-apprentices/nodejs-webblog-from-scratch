@@ -19,7 +19,8 @@
     "server0": "nodemon ./seminar/http/server/index.mjs",
     "server": "nodemon ./original/server/index.mjs",
     "stream": "nodemon ./stream/server/index.mjs",
-    "study": "nodemon ./stream/study/index.mjs"
+    "study": "nodemon ./stream/study/index.mjs",
+    "video": "nodemon ./stream/server/video.js"
   },
   "engines": {
     "node": ">=14 <17",
