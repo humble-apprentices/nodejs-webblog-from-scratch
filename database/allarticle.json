@@ -6,5 +6,9 @@
     {
         "name": "yujingcheng",
         "content": "Node.js API 创建的所有流都只对字符串和 Buffer（或 Uint8Array）对象进行操作。 但是，流的实现可以使用其他类型的 JavaScript 值（除了 null，它在流中具有特殊用途）。 这样的流被认为是在'对象模式'下运行的。流的实例在创建流时使用 objectMode 选项切换到对象模式。 尝试将现有的流切换到对象模式是不安全的。"
+    },
+    {
+        "name": "1",
+        "content": "1"
     }
 ]

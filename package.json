@@ -15,12 +15,12 @@
     "nodemon": "^2.0.16"
   },
   "scripts": {
-    "project": "nodemon ./project/index.mjs",
     "server0": "nodemon ./seminar/http/server/index.mjs",
     "server": "nodemon ./original/server/index.mjs",
+    "noajax": "nodemon ./noAjax/server/index.mjs",
     "stream": "nodemon ./stream/server/index.mjs",
     "study": "nodemon ./stream/study/index.mjs",
-    "video": "nodemon ./stream/server/video.js"
+    "video": "nodemon ./stream/server/video.mjs"
   },
   "engines": {
     "node": ">=14 <17",

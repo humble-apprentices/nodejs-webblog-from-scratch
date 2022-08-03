@@ -12,14 +12,35 @@ const getPath = (url) => {
 };
 const { __dirname } = getPath(import.meta.url);
 
-// stream中buffer
-var fileName = resolve(__dirname, "data.txt");
-var stream = createReadStream(fileName);
-console.log("stream内容", stream);
-stream.on("data", function (chunk) {
-  console.log('chukkkkkkkkkkkkkkkkkkkkkkkkk');
-  console.log(chunk instanceof Buffer);
-  console.log(chunk);
-});
+function streambuffer() {
+  // stream中buffer
+  var fileName = resolve(__dirname, "data.txt");
+  var stream = createReadStream(fileName);
+  // console.log("stream内容", stream);
+  stream.on("data", function (chunk) {
+    console.log("获取数据");
+    console.log(chunk instanceof Buffer);
+    console.log(chunk);
+  });
+}
 
 // buffer
+
+function createBuffer() {
+  let buf = Buffer.alloc(10, 0,"utf8");
+  console.log(buf);
+  writeBuffer(buf, 1, '111');
+}
+
+function writeBuffer(buf, offset, data) {
+  buf.write(data, offset);
+  console.log(buf);
+  readBufer(buf, 0, 3);
+}
+
+function readBufer(buf, start, end) {
+  console.log(buf.toString("utf8", start, end));
+}
+
+// streambuffer()
+createBuffer();

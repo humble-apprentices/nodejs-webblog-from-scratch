@@ -20,7 +20,7 @@ body {
   line-height: 25px;
 }
 .delete-button {
-  border-radius: 20px;
+  border-radius: 10px;
   background: white;
 }
 .article-name::before {

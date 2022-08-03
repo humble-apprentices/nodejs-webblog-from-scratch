@@ -1,0 +1,40 @@
+body {
+  background-color: rgba(60, 66, 74, 0.55);
+}
+.container {
+  padding: 20px;
+  color: white;
+  align-items: center;
+}
+.box-article {
+  position: relative;
+  background: white;
+  color: rgba(60, 66, 74);
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+.article-name {
+  display: flex;
+  font-size: 18px;
+  line-height: 25px;
+}
+.delete-button {
+  border-radius: 20px;
+  background: white;
+}
+.article-name::before {
+  content: "";
+  display: inline-block;
+  background: #3c424a;
+  width: 3px;
+  height: 25px;
+  line-height: 25px;
+  margin-right: 5px;
+}
+.article-content {
+  margin: 10px 0;
+}
+.m-t-10 {
+  margin-top: 10px;
+}

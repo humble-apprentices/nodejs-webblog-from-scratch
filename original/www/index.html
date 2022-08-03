@@ -47,7 +47,6 @@
           oElentment = document.createElement("button");
           oElentment.innerHTML = "删除";
           oElentment.setAttribute("class", "delete-button");
-          oElentment.setAttribute("id", `delete-button${index}`);
           oElentment.dataset.index = index;
           oBox.appendChild(oElentment);
           // 插入盒子
@@ -94,6 +93,7 @@
           })
         );
       }
+      // 为删除绑定事件
       function deleteListEvent() {
         document.getElementById("p1").addEventListener("click", function (ev) {
           var target = ev.target || ev.srcElement;
@@ -102,6 +102,7 @@
           }
         });
       }
+      // 删除博客
       function deleteListItem(index) {
         console.log(index);
         request.onreadystatechange = function () {

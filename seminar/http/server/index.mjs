@@ -39,7 +39,7 @@ const {
 
 // 监听请求事件
 server.on('request', (req, res) => {
-  // console.log(req.url)
+  console.log(req.url)
   // console.log(req.method)
   // console.log(req.httpVersion)
   // console.log(req.headers)
@@ -76,4 +76,5 @@ server.on('request', (req, res) => {
 
 server.listen(3000, '0.0.0.0', () => {
   console.log('server is start...')
+  console.log("Local:   http://localhost:3000")
 });
