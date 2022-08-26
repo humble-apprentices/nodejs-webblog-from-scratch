@@ -23,6 +23,21 @@ body {
   border-radius: 10px;
   background: white;
 }
+.comment {
+  display: none;
+  margin-top: 10px;
+}
+.comment-button {
+  border-radius: 10px;
+  background: rgb(148, 210, 179);
+}
+.comment-input {
+  border-radius: 10px;
+}
+.comment-submit {
+  border-radius: 10px;
+  background: rgb(148, 210, 179);
+}
 .article-name::before {
   content: "";
   display: inline-block;
@@ -37,4 +52,12 @@ body {
 }
 .m-t-10 {
   margin-top: 10px;
+}
+.show {
+  display: block;
+}
+.comment-delete {
+  border-radius: 10px;
+  background: rgb(148, 210, 179);
+  margin-left: 20px;
 }
