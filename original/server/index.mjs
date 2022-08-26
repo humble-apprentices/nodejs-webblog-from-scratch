@@ -124,7 +124,6 @@ server.on("request", (req, res) => {
 
   return;
 });
-
 server.listen(8080, "0.0.0.0", () => {
   console.log("App running at:");
   console.log("Local:   http://localhost:8080");
