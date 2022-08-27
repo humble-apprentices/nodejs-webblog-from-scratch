@@ -6,18 +6,14 @@ import { lookup } from "es-mime-types";
 
 // mjs写法里无法获取__dirname, __filename
 const getPath = (url) => {
-  const __filename = fileURLToPath(url); // /Users/zjh/work/node_learn/original/server/index.mjs
-  const __dirname = dirname(__filename); // /Users/zjh/work/node_learn/original/server
+  const __filename = fileURLToPath(url);
+  const __dirname = dirname(__filename);
   return {
     __dirname,
     __filename,
   };
 };
 const { __dirname } = getPath(import.meta.url);
-
-const ARTICLE_PATH = '/Users/zjh/work/node_learn/database/allarticle.json';
-const COMMENT_PATH = '/Users/zjh/work/node_learn/database/comment.json';
-const RELATION_PATH = '/Users/zjh/work/node_learn/database/mappingRelations.json';
 
 const server = createServer();
 server.on("request", (req, res) => {
@@ -34,9 +30,12 @@ server.on("request", (req, res) => {
   pathname = decodeURIComponent(pathname);
   // 动态生成相对路径
   let absPath = join(__dirname, "../www", pathname);
+  const ARTICLE_PATH = join(__dirname, "../../database", "allarticle.json");
+  const COMMENT_PATH = join(__dirname, "../../database", "comment.json");
+  const RELATION_PATH = join(__dirname, "../../database", "mappingRelations.json");
   // 获取博客接口
   if (req.url === "/get/api/getList") {
-    absPath = join(__dirname, "../../database", "mappingRelations.json");
+    absPath = RELATION_PATH;
   }
   // 提交博客接口
   if (req.url === "/post/api/postList") {
@@ -114,18 +113,18 @@ server.on("request", (req, res) => {
         requestBody = JSON.parse(requestBody);
         //修改评论和关系文件
         const comments = JSON.parse(readFileSync(COMMENT_PATH).toString());
-        const mappingRelations = JSON.parse(readFileSync(RELATION_PATH).toString());      
+        const mappingRelations = JSON.parse(readFileSync(RELATION_PATH).toString()); 
         comments.push([time, requestBody[1]]);//评论存id和内容
         mappingRelations[requestBody[0]].push(time);//关系存评论id
-        writeFileSync(COMMENT_PATH, JSON.stringify(comments));
-        writeFileSync(RELATION_PATH, JSON.stringify(mappingRelations));
+        const c = writeFileSync(COMMENT_PATH, JSON.stringify(comments));
+        const m = writeFileSync(RELATION_PATH, JSON.stringify(mappingRelations));
       } catch (error) {
         console.log(error);
       }
     });
-    
     res.setHeader("Content-type", `${lookup(absPath)};charset=utf-8`);
     res.end();
+    
     return;
   }
 
