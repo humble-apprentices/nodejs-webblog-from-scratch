@@ -17,11 +17,6 @@ const { __dirname } = getPath(import.meta.url);
 
 const server = createServer();
 server.on("request", (req, res) => {
-//   server.maxConnections = 3;
-//   server.getConnections(function (err, count) {
-//     console.log("当前连接的客户端个数为：" + count);
-//   });
-//   console.log(server.address(), '666');
   console.log(req.url);
   console.log(req.method);
   // 静态服务处理不同的文件
@@ -45,16 +40,15 @@ server.on("request", (req, res) => {
       dataList.push(chunk);
     });
     req.on("end", function () {
-      requestBody = Buffer.concat(dataList).toString();
       try {
-        requestBody = JSON.parse(requestBody);
+        requestBody = getRequestBody(dataList);
         //修改帖子和关系文件
-        const articles = JSON.parse(readFileSync(ARTICLE_PATH).toString());
-        const mappingRelations = JSON.parse(readFileSync(RELATION_PATH).toString());
+        const articles = mReadFile(ARTICLE_PATH);
+        const mappingRelations = mReadFile(RELATION_PATH);
         articles.push(requestBody);//帖子name和content
         mappingRelations.push([]);//关系文件新增一个空数组
-        writeFileSync(ARTICLE_PATH, JSON.stringify(articles));
-        writeFileSync(RELATION_PATH, JSON.stringify(mappingRelations));
+        mWriteFile(ARTICLE_PATH, articles);
+        mWriteFile(RELATION_PATH, mappingRelations);
       } catch (error) {
         console.log(error);
       }
@@ -71,25 +65,20 @@ server.on("request", (req, res) => {
       dataList.push(chunk);
     });
     req.on("end", function () {
-      requestBody = Buffer.concat(dataList).toString();
       try {
-        requestBody = JSON.parse(requestBody);
+        requestBody = getRequestBody(dataList);
         //修改帖子 评论 关系三个文件
-        const articles = JSON.parse(readFileSync(ARTICLE_PATH).toString());
-        const comments = Object.fromEntries(JSON.parse(readFileSync(COMMENT_PATH).toString()));
-        const mappingRelations = JSON.parse(readFileSync(RELATION_PATH).toString());
-        articles.splice(requestBody.index, 1); //删除帖子
-        mappingRelations[requestBody.index].forEach((item)=>{ //删除帖子的评论
-          delete comments[item];
-        });
+        const articles = mReadFile(ARTICLE_PATH);
+        const comments = Object.fromEntries(mReadFile(COMMENT_PATH));
+        const mappingRelations = mReadFile(RELATION_PATH);
+        removeArticle(requestBody.index, articles, mappingRelations, comments);
         const commentsResult = [];
         for(let i in comments) {
           commentsResult.push([i, comments[i]]); //转化为数组
         }
-        mappingRelations.splice(requestBody.index, 1); //删除对应关系
-        writeFileSync(ARTICLE_PATH, JSON.stringify(articles));
-        writeFileSync(COMMENT_PATH, JSON.stringify(commentsResult));
-        writeFileSync(RELATION_PATH, JSON.stringify(mappingRelations));
+        mWriteFile(ARTICLE_PATH, articles);
+        mWriteFile(COMMENT_PATH, commentsResult);
+        mWriteFile(RELATION_PATH, mappingRelations);
       } catch (error) {
         console.log(error);
       }
@@ -108,16 +97,15 @@ server.on("request", (req, res) => {
       dataList.push(chunk);
     });
     req.on("end", function () {
-      requestBody = Buffer.concat(dataList).toString();
       try {
-        requestBody = JSON.parse(requestBody);
+        requestBody = getRequestBody(dataList);
         //修改评论和关系文件
-        const comments = JSON.parse(readFileSync(COMMENT_PATH).toString());
-        const mappingRelations = JSON.parse(readFileSync(RELATION_PATH).toString()); 
+        const comments = mReadFile(COMMENT_PATH);
+        const mappingRelations = mReadFile(RELATION_PATH); 
         comments.push([time, requestBody[1]]);//评论存id和内容
         mappingRelations[requestBody[0]].push(time);//关系存评论id
-        const c = writeFileSync(COMMENT_PATH, JSON.stringify(comments));
-        const m = writeFileSync(RELATION_PATH, JSON.stringify(mappingRelations));
+        const c = mWriteFile(COMMENT_PATH, comments);
+        const m = mWriteFile(RELATION_PATH, mappingRelations);
       } catch (error) {
         console.log(error);
       }
@@ -137,20 +125,19 @@ server.on("request", (req, res) => {
       dataList.push(chunk);
     });
     req.on("end", function () {
-      requestBody = Buffer.concat(dataList).toString();
       try {
-        requestBody = JSON.parse(requestBody);
+        requestBody = getRequestBody(dataList);
         //修改评论和关系文件
-        const comments = Object.fromEntries(JSON.parse(readFileSync(COMMENT_PATH).toString()));
-        const mappingRelations = JSON.parse(readFileSync(RELATION_PATH).toString());      
+        const comments = Object.fromEntries(mReadFile(COMMENT_PATH));
+        const mappingRelations = mReadFile(RELATION_PATH);      
         delete comments[requestBody.time];
         mappingRelations[requestBody.index].splice(mappingRelations[requestBody.index].indexOf(requestBody.time), 1);
         const commentsResult = [];
         for(let i in comments) {
           commentsResult.push([i, comments[i]]); //转化为数组
         }
-        writeFileSync(COMMENT_PATH, JSON.stringify(commentsResult));
-        writeFileSync(RELATION_PATH, JSON.stringify(mappingRelations));
+        mWriteFile(COMMENT_PATH, commentsResult);
+        mWriteFile(RELATION_PATH, mappingRelations);
       } catch (error) {
         console.log(error);
       }
@@ -165,9 +152,9 @@ server.on("request", (req, res) => {
     absPath = join(absPath, "index.html");
   }
   //所有帖子 同步读取文件，结果转化为字符串，解析JSON字符串转化为JS对象
-  const articles = JSON.parse(readFileSync(ARTICLE_PATH).toString());
+  const articles = mReadFile(ARTICLE_PATH);
   //所有评论 同步读取文件，结果转化为字符串，解析JSON字符串转化为JS对象，最后转为键值对方便读写
-  const comments = Object.fromEntries(JSON.parse(readFileSync(COMMENT_PATH).toString()));
+  const comments = Object.fromEntries(mReadFile(COMMENT_PATH));
 
   // 获取静态资源
   readFile(absPath, (err, data) => {
@@ -197,6 +184,29 @@ server.on("request", (req, res) => {
 
   return;
 });
+
+function mReadFile(path) {
+  return JSON.parse(readFileSync(path).toString());
+}
+
+function mWriteFile(path, content) {
+  writeFileSync(path, JSON.stringify(content));
+}
+
+const getRequestBody = (data) => {
+  return JSON.parse( Buffer.concat(data).toString());
+}
+
+const removeArticle = (articleIndex, articles, mapping, comments) => {
+  articles.splice(articleIndex, 1);
+  removeComments(articleIndex, mapping, comments);
+};
+const removeComments = (articleIndex, mapping, comments) => {
+  mapping[articleIndex].forEach((item)=>{
+    delete comments[item];
+  })
+  mapping.splice(articleIndex, 1);
+};
 
 server.listen(3000, "0.0.0.0", () => {
   console.log("App running at:");
