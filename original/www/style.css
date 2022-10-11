@@ -1,0 +1,63 @@
+body {
+  background-color: rgba(60,66,74,0.55);
+}
+.container {
+  padding: 20px;
+  color: white;
+  align-items: center;
+}
+.box-article {
+  position: relative;
+  background: white;
+  color: rgba(60,66,74);
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+.article-name {
+  display: flex;
+  font-size: 18px;
+  line-height: 25px;
+}
+.delete-button {
+  border-radius: 10px;
+  background: white;
+}
+.comment {
+  display: none;
+  margin-top: 10px;
+}
+.comment-button {
+  border-radius: 10px;
+  background: rgb(148, 210, 179);
+}
+.comment-input {
+  border-radius: 10px;
+}
+.comment-submit {
+  border-radius: 10px;
+  background: rgb(148, 210, 179);
+}
+.article-name::before {
+  content: "";
+  display: inline-block;
+  background: #3c424a;
+  width: 3px;
+  height: 25px;
+  line-height: 25px;
+  margin-right: 5px;
+}
+.article-content {
+  margin: 10px 0;
+}
+.m-t-10 {
+  margin-top: 10px;
+}
+.show {
+  display: block;
+}
+.comment-delete {
+  border-radius: 10px;
+  background: rgb(148, 210, 179);
+  margin-left: 20px;
+}

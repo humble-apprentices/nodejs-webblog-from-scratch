@@ -1,21 +1,19 @@
 {
-  "name": "nodejs-webblog-from-scratch",
+  "name": "node_learn",
   "version": "1.0.0",
-  "main": "index.js",
-  "author": "yujingcheng <yujingcheng@meituan.com>",
-  "license": "MIT",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "nodemon ./original/server/index.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "es-mime-types": "^0.1.4"
+    "es-mime-types": "^0.1.4",
+    "volta": "^0.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "nodemon": "*"
+    "nodemon": "^2.0.19"
   },
-  "scripts": {
-    "project": "npx nodemon ./project/index.mjs"
-  },
-  "engines": {
-    "node": ">=14 <17",
-    "yarn": ">=1.22.18"
-  }
+  "description": ""
 }

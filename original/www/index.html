@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>博客</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div>
+      <h1>提交我的博客</h1>
+    </div>
+    <div>
+      <div>
+        <label>昵称: </label>
+        <input id="set_name" />
+      </div>
+      <div class="m-t-10">
+        <label>内容: </label>
+        <textarea id="set_content" rows="6" cols="60"></textarea>
+      </div>
+      <button class="m-t-10" id="post-buttom">提交</button>
+    </div>
+    <div>
+      <h1>博客目录</h1>
+    </div>
+    <div id="blog"></div>
+  </div>
+  <script>
+    var request = new XMLHttpRequest();
+    document.getElementById("post-buttom").onclick = postList;
+    // 循环展示博客列表
+    function dealData(data) {
+      data.forEach((item, index) => {
+        // 设置box
+        oBox = document.createElement("div");
+        oBox.setAttribute("class", "box-article");
+        // 展示姓名
+        oElement = document.createElement("div");
+        oElement.innerHTML = item.name;
+        oElement.setAttribute("class", "article-name");
+        oBox.appendChild(oElement);
+        // 展示内容
+        oElement = document.createElement("div");
+        oElement.setAttribute("class", "article-content");
+        oElement.innerHTML = item.content;
+        oBox.appendChild(oElement);
+        // 删除按钮
+        oElement = document.createElement("button");
+        oElement.innerHTML = "删除";
+        oElement.setAttribute("class", "delete-button");
+        oElement.dataset.index = index;
+        oBox.appendChild(oElement);
+        // 评论按钮
+        commentBt = document.createElement("button");
+        commentBt.innerHTML = "评论";
+        commentBt.setAttribute("class", "comment-button", "hide");
+        commentBt.dataset.index = index;
+        oBox.appendChild(commentBt);
+        //评论
+        comment = document.createElement("div");
+        comment.dataset.index = index;
+        comment.setAttribute("class", "comment");
+        //评论输入框
+        commentInput = document.createElement('input');
+        commentInput.type = "text";
+        commentInput.setAttribute("class", "comment-input");
+        commentInput.dataset.index = index;
+        comment.appendChild(commentInput);
+        //评论提交按钮
+        commentSubmit = document.createElement('button');
+        commentSubmit.innerHTML = "提交";
+        commentSubmit.setAttribute("class", "comment-submit");
+        commentSubmit.dataset.index = index;
+        comment.appendChild(commentSubmit);
+        oBox.appendChild(comment);
+        // 评论
+        if (item.children) { //如果有评论
+          oElement = document.createElement("ul");
+          console.log("777777777", item.children);
+          item.children.forEach(v => {
+            oComment = document.createElement("li");
+            oComment.innerHTML = v[1];
+            oDelete = document.createElement("button");
+            oDelete.setAttribute("class", "comment-delete");
+            oDelete.dataset.index = index;
+            oDelete.dataset.time = v[0];
+            oDelete.innerHTML = "删除";
+            oComment.appendChild(oDelete);
+            oElement.appendChild(oComment);
+          });
+          oBox.appendChild(oElement);
+        }
+        // 插入盒子
+        document.getElementById("blog").appendChild(oBox);
+      });
+    }
+    // 获取博客列表
+    function getList() {
+      request.onreadystatechange = function () {
+        // 状态发生变化时，函数被回调
+        if (request.readyState === 4) {
+          // 成功完成
+          // 判断响应结果:
+          if (request.status === 200) {
+            document.getElementById("blog").innerHTML = "";
+            dealData(JSON.parse(request.responseText));
+            return;
+          }
+        } else {
+          // HTTP请求还在继续...
+        }
+      };
+      // 发送请求:
+      request.open("GET", "get/api/getList");
+      request.send();
+    }
+    // 上传博客
+    function postList() {
+      request.onreadystatechange = function () {
+        // 状态发生变化时，函数被回调
+        if (request.readyState === 4) {
+          if (request.status === 200) {
+            getList();
+          }
+        }
+      };
+      // 发送请求:
+      request.open("POST", "post/api/postList");
+      request.setRequestHeader("Content-type", "application/json");
+      request.send(
+        JSON.stringify({
+          name: document.getElementById("set_name").value,
+          content: document.getElementById("set_content").value,
+        })
+      );
+    }
+    // 为删除绑定事件
+    function onClick() {
+      document.getElementById("blog").addEventListener("click", function (ev) {
+        var target = ev.target || ev.srcElement;
+        if (target.classList[0] == 'delete-button') {
+          deleteListItem(target.dataset["index"]);
+        } else if (target.classList[0] == 'comment-button') {
+          const comment = document.getElementsByClassName('comment')[target.dataset["index"]];
+          comment.classList.add('show');
+        } else if (target.classList[0] == 'comment-submit') {
+          const comment = document.getElementsByClassName('comment')[target.dataset["index"]];
+          const content = document.getElementsByClassName('comment-input')[target.dataset["index"]].value;
+          submitComment(target.dataset["index"], content);
+          comment.classList.remove('show');
+        } else if (target.classList[0] == 'comment-delete') {
+          deleteComment(target.dataset["index"], target.dataset["time"]);
+        }
+      });
+    }
+    // 删除博客
+    function deleteListItem(index) {
+      request.onreadystatechange = function () {
+        // 状态发生变化时，函数被回调
+        if (request.readyState === 4) {
+          if (request.status === 200) {
+            getList();
+          }
+        }
+      };
+      // 发送请求:
+      request.open("POST", "post/api/deleteListItem");
+      request.setRequestHeader("Content-type", "application/json");
+      request.send(
+        JSON.stringify({
+          index: index,
+        })
+      );
+    }
+    // 提交评论
+    function submitComment(index, content) {
+      request.onreadystatechange = function () {
+        // 状态发生变化时，函数被回调
+        if (request.readyState === 4) {
+          if (request.status === 200) {
+            getList();
+          }
+        }
+      };
+
+      // 发送请求:
+      request.open("POST", "post/api/submitComment");
+      request.setRequestHeader("Content-type", "application/json");
+      request.send(
+        JSON.stringify(
+          [index, content]
+        )
+      );
+    }
+    // 删除评论
+    function deleteComment(index, time) {
+      request.onreadystatechange = function () {
+        // 状态发生变化时，函数被回调
+        if (request.readyState === 4) {
+          if (request.status === 200) {
+            getList();
+          }
+        }
+      };
+      // 发送请求:
+      request.open("POST", "post/api/deleteComment");
+      request.setRequestHeader("Content-type", "application/json");
+      request.send(
+        JSON.stringify({
+          index: index,
+          time, time
+        })
+      );
+    }
+    // 执行
+    getList();
+    onClick();
+  </script>
+</body>
+
+</html>
