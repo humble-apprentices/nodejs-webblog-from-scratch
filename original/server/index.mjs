@@ -34,6 +34,8 @@ server.on("request", (req, res) => {
   const ARTICLE_PATH = join(__dirname, "../../database", "allarticle.json");
   const COMMENT_PATH = join(__dirname, "../../database", "comment.json");
   const RELATION_PATH = join(__dirname, "../../database", "mappingRelations.json");
+  const USER_ALLARTICLE = join(__dirname, "../../database", "userAllarticle.json");
+  const USER_COMMENT = join(__dirname, "../../database", "userComment.json");
 
   // 注册接口
   if (req.url === "/post/api/regist") {
@@ -76,7 +78,7 @@ server.on("request", (req, res) => {
         //读取用户文件，校验用户密码是否正确
         const user = mReadFile(USER_PATH);
         const userLogin = user.findIndex(bi => bi.name === requestBody.name)
-        if (userLogin > 0) {
+        if (userLogin >= 0) {
           // 密码加密与对比
           const hash = crypto.createHash('sha256');
           hash.update(requestBody.password);
@@ -116,13 +118,17 @@ server.on("request", (req, res) => {
     req.on("end", function () {
       try {
         requestBody = getRequestBody(dataList);
+        requestBody.articlesId = Math.round(Math.random() * 1000000000);
         //修改帖子和关系文件
         const articles = mReadFile(ARTICLE_PATH);
         const mappingRelations = mReadFile(RELATION_PATH);
+        const userAllarticle = mReadFile(USER_ALLARTICLE);
         articles.push(requestBody);//帖子name和content
         mappingRelations.push([]);//关系文件新增一个空数组
+        userAllarticle.push({ userId: requestBody.userId, articlesId: requestBody.articlesId })
         mWriteFile(ARTICLE_PATH, articles);
         mWriteFile(RELATION_PATH, mappingRelations);
+        mWriteFile(USER_ALLARTICLE, userAllarticle);
       } catch (error) {
         console.log(error);
       }
@@ -145,14 +151,17 @@ server.on("request", (req, res) => {
         const articles = mReadFile(ARTICLE_PATH);
         const comments = Object.fromEntries(mReadFile(COMMENT_PATH));
         const mappingRelations = mReadFile(RELATION_PATH);
-        removeArticle(requestBody.index, articles, mappingRelations, comments);
+        const userAllarticle = mReadFile(USER_ALLARTICLE);
+        const articlesId = articles[requestBody.index].articlesId;
+        removeArticle(requestBody.index, articlesId, articles, mappingRelations, comments, userAllarticle);
         const commentsResult = [];
-        for(let i in comments) {
+        for (let i in comments) {
           commentsResult.push([i, comments[i]]); //转化为数组
         }
         mWriteFile(ARTICLE_PATH, articles);
         mWriteFile(COMMENT_PATH, commentsResult);
         mWriteFile(RELATION_PATH, mappingRelations);
+        mWriteFile(USER_ALLARTICLE, userAllarticle);
       } catch (error) {
         console.log(error);
       }
@@ -163,23 +172,28 @@ server.on("request", (req, res) => {
     return;
   }
   //提交评论接口
-  if(req.url === "/post/api/submitComment") {
+  if (req.url === "/post/api/submitComment") {
     var dataList = [];
     var requestBody = {};
-    const time = new Date().getTime().toString();
     req.on("data", function (chunk) {
       dataList.push(chunk);
     });
     req.on("end", function () {
       try {
         requestBody = getRequestBody(dataList);
+
         //修改评论和关系文件
         const comments = mReadFile(COMMENT_PATH);
         const mappingRelations = mReadFile(RELATION_PATH);
-        comments.push([time, requestBody[1]]);//评论存id和内容
-        mappingRelations[requestBody[0]].push(time);//关系存评论id
+        const userComment = mReadFile(USER_COMMENT);
+        const allarticle = mReadFile(ARTICLE_PATH);
+        const articlesId = allarticle[requestBody.index].articlesId;
+        comments.push({ commentId: requestBody.commentId, content: requestBody.content });//评论存id和内容
+        mappingRelations.push({ articlesId: articlesId, commentId: requestBody.commentId });//关系存评论id
+        userComment.push({ userId: requestBody.userId, commentId: requestBody.commentId })
         const c = mWriteFile(COMMENT_PATH, comments);
         const m = mWriteFile(RELATION_PATH, mappingRelations);
+        const u = mWriteFile(USER_COMMENT, userComment);
       } catch (error) {
         console.log(error);
       }
@@ -191,10 +205,9 @@ server.on("request", (req, res) => {
   }
 
   //删除评论接口
-  if(req.url === "/post/api/deleteComment") {
+  if (req.url === "/post/api/deleteComment") {
     var dataList = [];
     var requestBody = {};
-    const time = new Date().getTime().toString();
     req.on("data", function (chunk) {
       dataList.push(chunk);
     });
@@ -202,15 +215,11 @@ server.on("request", (req, res) => {
       try {
         requestBody = getRequestBody(dataList);
         //修改评论和关系文件
-        const comments = Object.fromEntries(mReadFile(COMMENT_PATH));
-        const mappingRelations = mReadFile(RELATION_PATH);
-        delete comments[requestBody.time];
-        mappingRelations[requestBody.index].splice(mappingRelations[requestBody.index].indexOf(requestBody.time), 1);
-        const commentsResult = [];
-        for(let i in comments) {
-          commentsResult.push([i, comments[i]]); //转化为数组
-        }
-        mWriteFile(COMMENT_PATH, commentsResult);
+        let comments = mReadFile(COMMENT_PATH);
+        let mappingRelations = mReadFile(RELATION_PATH);
+        comments = comments.filter(bi => bi.commentId !== requestBody.time);
+        mappingRelations = mappingRelations.filter(bi => bi.commentId !== requestBody.time);
+        mWriteFile(COMMENT_PATH, comments);
         mWriteFile(RELATION_PATH, mappingRelations);
       } catch (error) {
         console.log(error);
@@ -242,16 +251,21 @@ server.on("request", (req, res) => {
   readFile(absPath, (err, data) => {
     if (!err) {
       res.setHeader("Content-type", `${lookup(absPath)};charset=utf-8`);
-      if(req.url === "/get/api/getList") {
+      if (req.url === "/get/api/getList") {
         const mappingRelations = JSON.parse(data.toString()); //帖子和评论的映射关系
-        for(let i=0; i<articles.length; i++) {
-          if(mappingRelations[i] && mappingRelations[i].length>0) { //如果帖子有评论
+        const commentData = mReadFile(COMMENT_PATH);
+        for (let i = 0; i < articles.length; i++) {
+          const map = mappingRelations.filter(bi => bi.articlesId === articles[i].articlesId);
+
+          if (map && map.length > 0) { //如果帖子有评论
             articles[i]['children'] = [];
-            for(let j=0; j<mappingRelations[i].length; j++) {
-              articles[i]['children'].push([mappingRelations[i][j], comments[mappingRelations[i][j]]]);
+            for (let j = 0; j < map.length; j++) {
+              const c = commentData.find(bi => bi.commentId === map[j].commentId)
+              articles[i]['children'].push([map[j].commentId, c.content]);
             }
           }
         }
+
         res.end(JSON.stringify(articles));
       } else {
         res.end(data);
@@ -276,15 +290,17 @@ function mWriteFile(path, content) {
 }
 
 const getRequestBody = (data) => {
-  return JSON.parse( Buffer.concat(data).toString());
+  return JSON.parse(Buffer.concat(data).toString());
 }
 
-const removeArticle = (articleIndex, articles, mapping, comments) => {
+const removeArticle = (articleIndex, articlesId, articles, mapping, comments, userAllarticle) => {
+  const userAllarticleIndex = userAllarticle.findIndex(bi => bi.articlesId === articleIndex);
+  userAllarticle.splice(userAllarticleIndex, 1);
   articles.splice(articleIndex, 1);
   removeComments(articleIndex, mapping, comments);
 };
 const removeComments = (articleIndex, mapping, comments) => {
-  mapping[articleIndex].forEach((item)=>{
+  mapping[articleIndex].forEach((item) => {
     delete comments[item];
   })
   mapping.splice(articleIndex, 1);

@@ -16,8 +16,8 @@
     </div>
     <div>
       <div>
-        <label>昵称: </label>
-        <input id="set_name" />
+        <span>昵称: </span>
+        <input id="set_name"></input>
       </div>
       <div class="m-t-10">
         <label>内容: </label>
@@ -31,6 +31,11 @@
     <div id="blog"></div>
   </div>
   <script>
+
+    const userId = getQueryString('userId');
+    const name = getQueryString('name');
+    document.getElementById("set_name").value = name;
+
     var request = new XMLHttpRequest();
     document.getElementById("post-buttom").onclick = postList;
     // 循环展示博客列表
@@ -134,7 +139,7 @@
       request.setRequestHeader("Content-type", "application/json");
       request.send(
         JSON.stringify({
-          userId: getQueryString('user'),
+          userId: getQueryString('userId'),
         })
       );
     }
@@ -156,6 +161,7 @@
         JSON.stringify({
           name: document.getElementById("set_name").value,
           content: document.getElementById("set_content").value,
+          userId: getQueryString('userId')
         })
       );
     }
@@ -212,9 +218,12 @@
       request.open("POST", "post/api/submitComment");
       request.setRequestHeader("Content-type", "application/json");
       request.send(
-        JSON.stringify(
-          [index, content]
-        )
+        JSON.stringify({
+          index: index,
+          commentId: new Date().getTime().toString(),
+          content: content,
+          userId: getQueryString('userId')
+        })
       );
     }
     // 删除评论
@@ -233,7 +242,7 @@
       request.send(
         JSON.stringify({
           index: index,
-          time, time
+          time: time
         })
       );
     }

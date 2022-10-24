@@ -40,7 +40,7 @@
             const data = JSON.parse(request.responseText);
             if (data.code === 'success') {
               alert('登录成功')
-              const url = "http://localhost:3000/index.html?user=" + data.user.userId;
+              const url = "http://localhost:3000/index.html?userId=" + data.user.userId + "&name=" + data.user.name;
               window.location.href = url;
             } else if (data.code === 'wrongPwd') {
               alert('密码错误')
