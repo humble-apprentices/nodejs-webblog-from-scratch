@@ -261,7 +261,7 @@ server.on("request", (req, res) => {
             articles[i]['children'] = [];
             for (let j = 0; j < map.length; j++) {
               const c = commentData.find(bi => bi.commentId === map[j].commentId)
-              articles[i]['children'].push([map[j].commentId, c.content]);
+              articles[i]['children'].push([map[j].commentId, c ? c.content : null]);
             }
           }
         }
@@ -297,13 +297,10 @@ const removeArticle = (articleIndex, articlesId, articles, mapping, comments, us
   const userAllarticleIndex = userAllarticle.findIndex(bi => bi.articlesId === articleIndex);
   userAllarticle.splice(userAllarticleIndex, 1);
   articles.splice(articleIndex, 1);
-  removeComments(articleIndex, mapping, comments);
+  removeComments(articlesId, mapping, comments);
 };
-const removeComments = (articleIndex, mapping, comments) => {
-  mapping[articleIndex].forEach((item) => {
-    delete comments[item];
-  })
-  mapping.splice(articleIndex, 1);
+const removeComments = (articlesId, mapping, comments) => {
+  mapping = mapping.filter(bi => bi.articlesId !== articlesId);
 };
 
 server.listen(3000, "0.0.0.0", () => {
