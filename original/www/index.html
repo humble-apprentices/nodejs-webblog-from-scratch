@@ -17,7 +17,7 @@
     <div>
       <div>
         <span>昵称: </span>
-        <input id="set_name"></input>
+        <input id="set_name" disabled />
       </div>
       <div class="m-t-10">
         <label>内容: </label>
@@ -32,8 +32,8 @@
   </div>
   <script>
 
-    const userId = getQueryString('userId');
-    const name = getQueryString('name');
+    const userId = getCookieValue('userId');
+    const name = getCookieValue('username');
     document.getElementById("set_name").value = name;
 
     var request = new XMLHttpRequest();
@@ -141,7 +141,7 @@
         JSON.stringify({
           name: document.getElementById("set_name").value,
           content: document.getElementById("set_content").value,
-          userId: getQueryString('userId')
+          userId: getCookieValue('userId')
         })
       );
     }
@@ -202,7 +202,7 @@
           index: index,
           commentId: new Date().getTime().toString(),
           content: content,
-          userId: getQueryString('userId')
+          userId: getCookieValue('userId')
         })
       );
     }
@@ -226,13 +226,9 @@
         })
       );
     }
-    function getQueryString(name) {
-      let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-      let r = window.location.search.substr(1).match(reg);
-      if (r != null) {
-        return decodeURIComponent(r[2]);
-      };
-      return null;
+    function getCookieValue(name) {
+      let reg = new RegExp(`${name}=(\\w+)`, "i");
+      return document.cookie.match(reg)?.[1];
     }
     // 执行
     getList();

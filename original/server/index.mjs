@@ -24,7 +24,7 @@ const RELATION_PATH = join(__dirname, "../../database", "mappingRelations.json")
 const USER_ALLARTICLE = join(__dirname, "../../database", "userAllarticle.json");
 const USER_COMMENT = join(__dirname, "../../database", "userComment.json");
 
-const auth = (req, res) => {
+const auth = (req, res, whiteList = []) => {
   const matched = req.headers?.['cookie']?.match?.(/userId=(\d+)/)?.[1];
 
   const user = matched
@@ -34,20 +34,26 @@ const auth = (req, res) => {
     return user;
   }
 
-  // if (!req.url.startsWith('/login') || !req.url.startsWith('/favicon.ico')) {
-  //   console.log(3333, req.url)
-  //   res.statusCode = 302;
-  //   res
-  //     .setHeader('location', '/login')
-  //     // .end();
-  // }
+
+  if (whiteList.find(url => req.url.startsWith(url))) {
+    return null;
+  }
+
+  res.statusCode = 401;
+  res.writeHead(302, { location: '/login' }).end();
 
   return null;
 };
 
 server.on("request", (req, res) => {
-
-  const user = auth(req, res);
+  const user = auth(req, res, [
+    '/login',
+    '/regist',
+    '/style.css',
+    '/favicon.ico',
+    '/post/api/login',
+    '/post/api/regist',
+  ]);
 
   console.log(req.url);
   console.log(req.method);
@@ -77,9 +83,9 @@ server.on("request", (req, res) => {
         // 密码加密
         requestBody.password = await new Password(requestBody.password).derive();
         //用户存储
-        const user = mReadFile(USER_PATH);
-        user.push(requestBody);//帖子name和content
-        mWriteFile(USER_PATH, user);
+        const users = mReadFile(USER_PATH);
+        users.push(requestBody);//帖子name和content
+        mWriteFile(USER_PATH, users);
       } catch (error) {
         console.log(error);
       }
@@ -101,19 +107,13 @@ server.on("request", (req, res) => {
         requestBody = getRequestBody(dataList);
         //读取用户文件，校验用户密码是否正确
         const users = mReadFile(USER_PATH);
-        const userLogin = users.findIndex(bi => bi.name === requestBody.name)
-        if (userLogin >= 0) {
-          const user = users[userLogin];
-          // // 密码加密与对比
-          // const hash = crypto.createHash('sha256');
-          // hash.update(requestBody.password);
-          // requestBody.password = hash.digest('hex')
-
-          // if (user.password === requestBody.password) {
+        const user = users.find(u => u.name === requestBody.name)
+        if (user) {
           // 密码加密与对比
           if (await new Password(requestBody.password).verify(user.password)) {
             res
               .setHeader('set-cookie', `userId=${user.userId}; Max-Age=2592000; Path=/`)
+              .setHeader('set-cookie', `username=${user.name}; Max-Age=2592000; Path=/`)
               .end(JSON.stringify({ code: 'success', user }));
           } else {
             res.end(JSON.stringify({ code: 'wrongPwd' }));
@@ -223,7 +223,6 @@ server.on("request", (req, res) => {
     });
     return;
   }
-
 
   // 获取博客接口
   if (req.url === "/get/api/getList") {
@@ -352,51 +351,53 @@ server.on("request", (req, res) => {
     res.end();
     return;
   }
+
+  if (req.url === "/get/api/getList") {
+    //所有帖子 同步读取文件，结果转化为字符串，解析JSON字符串转化为JS对象
+    const articles = mReadFile(ARTICLE_PATH);
+    //所有评论 同步读取文件，结果转化为字符串，解析JSON字符串转化为JS对象，最后转为键值对方便读写
+    const mappingRelations = mReadFile(RELATION_PATH);
+    const commentData = mReadFile(COMMENT_PATH);
+    for (let i = 0; i < articles.length; i++) {
+      const map = mappingRelations.filter(bi => bi.articlesId === articles[i].articlesId);
+
+      if (map && map.length > 0) { //如果帖子有评论
+        articles[i]['children'] = [];
+        for (let j = 0; j < map.length; j++) {
+          const c = commentData.find(bi => bi.commentId === map[j].commentId)
+          articles[i]['children'].push([map[j].commentId, c ? c.content : null]);
+        }
+      }
+    }
+
+    res.end(JSON.stringify(articles));
+    return;
+  }
+
   // 获取index.html
   if (req.url === "/") {
     absPath = join(absPath, "index.html");
   }
   // login.html
   if (req.url === "/login") {
-    absPath = join(absPath, "login.html");
+    absPath = join(dirname(absPath), "login.html");
   }
   // regist.html
   if (req.url === "/regist") {
-    absPath = join(absPath, "regist.html");
+    absPath = join(dirname(absPath), "regist.html");
   }
   // demo.html
   if (req.url === "/demo") {
-    absPath = join(absPath, "demo.html");
+    absPath = join(dirname(absPath), "demo.html");
   }
-  //所有帖子 同步读取文件，结果转化为字符串，解析JSON字符串转化为JS对象
-  const articles = mReadFile(ARTICLE_PATH);
-  //所有评论 同步读取文件，结果转化为字符串，解析JSON字符串转化为JS对象，最后转为键值对方便读写
-  const comments = Object.fromEntries(mReadFile(COMMENT_PATH));
 
   // 获取静态资源
   readFile(absPath, (err, data) => {
     if (!err) {
       res.setHeader("Content-type", `${lookup(absPath)};charset=utf-8`);
-      if (req.url === "/get/api/getList") {
-        const mappingRelations = JSON.parse(data.toString()); //帖子和评论的映射关系
-        const commentData = mReadFile(COMMENT_PATH);
-        for (let i = 0; i < articles.length; i++) {
-          const map = mappingRelations.filter(bi => bi.articlesId === articles[i].articlesId);
-
-          if (map && map.length > 0) { //如果帖子有评论
-            articles[i]['children'] = [];
-            for (let j = 0; j < map.length; j++) {
-              const c = commentData.find(bi => bi.commentId === map[j].commentId)
-              articles[i]['children'].push([map[j].commentId, c ? c.content : null]);
-            }
-          }
-        }
-
-        res.end(JSON.stringify(articles));
-      } else {
-        res.end(data);
-      }
+      res.end(data);
     } else {
+      console.error(err);
       res.writeHead(500, {
         "Content-type": "text/html;charset=utf-8",
       });
