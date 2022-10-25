@@ -12,41 +12,42 @@
 <body>
   <div class="container">
     <div>
-      <h1>注册</h1>
+      <h1>demo</h1>
     </div>
     <div>
       <div>
-        <label>昵称: </label>
+        <label>输入: </label>
         <input id="set_name" />
       </div>
       <div class="m-t-10">
-        <label>密码: </label>
-        <input id="set_content" type="password"></input>
+        <label>输出: </label>
+        <div id="set_content"></div>
       </div>
-      <button class="m-t-10" id="post-buttom">注册</button>
+      <button class="m-t-10" id="post-buttom" onclick="test('post/api/testHash')">测试hash</button>
+      <button class="m-t-10" id="post-buttom-testSymmetrical" onclick="test('post/api/testCipheriv')">测试对称加密</button>
+      <button class="m-t-10" id="post-buttom-testAsymmetry" onclick="test('post/api/testDecipheriv')">测试对称解密</button>
     </div>
+
   </div>
   <script>
     var request = new XMLHttpRequest();
-    document.getElementById("post-buttom").onclick = regist;
-    // 注册
-    function regist() {
+    // 测试
+    function test(url) {
       request.onreadystatechange = function () {
         // 状态发生变化时，函数被回调
         if (request.readyState === 4) {
           if (request.status === 200) {
-            alert('注册成功，去登录')
-            window.location.replace("http://localhost:3000/login.html");
+            console.log(request.responseText)
+            document.getElementById("set_content").innerHTML = request.responseText;
           }
         }
       };
       // 发送请求:
-      request.open("POST", "post/api/regist");
+      request.open("POST", url);
       request.setRequestHeader("Content-type", "application/json");
       request.send(
         JSON.stringify({
-          name: document.getElementById("set_name").value,
-          password: document.getElementById("set_content").value,
+          inputData: document.getElementById("set_name").value,
         })
       );
     }

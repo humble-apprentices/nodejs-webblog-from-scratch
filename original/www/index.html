@@ -124,26 +124,6 @@
       request.send();
     }
 
-    // 获取登录用户信息
-    function getUser() {
-      request.onreadystatechange = function () {
-        // 状态发生变化时，函数被回调
-        if (request.readyState === 4) {
-          if (request.status === 200) {
-            console.log('lll', request.responseText)
-          }
-        }
-      };
-      // 发送请求:
-      request.open("POST", "post/api/postUser");
-      request.setRequestHeader("Content-type", "application/json");
-      request.send(
-        JSON.stringify({
-          userId: getQueryString('userId'),
-        })
-      );
-    }
-
     // 上传博客
     function postList() {
       request.onreadystatechange = function () {
@@ -255,7 +235,7 @@
       return null;
     }
     // 执行
-    getUser();
+    // getUser();
     getList();
     onClick();
   </script>

@@ -4,7 +4,7 @@ import { fileURLToPath, parse } from "node:url";
 import { join, dirname } from "node:path";
 import { lookup } from "es-mime-types";
 import crypto from "node:crypto";
-
+import Password from "./password.mjs";
 // mjs写法里无法获取__dirname, __filename
 const getPath = (url) => {
   const __filename = fileURLToPath(url);
@@ -15,10 +15,6 @@ const getPath = (url) => {
   };
 };
 const { __dirname } = getPath(import.meta.url);
-
-//获取加密模块支持的所有哈希算法
-// const hashes = crypto.getHashes(); 
-// console.log(hashes); // ['md5','sha', 'sha1', 'sha1WithRSAEncryption', ...]
 
 const server = createServer();
 server.on("request", (req, res) => {
@@ -44,14 +40,16 @@ server.on("request", (req, res) => {
     req.on("data", function (chunk) {
       dataList.push(chunk);
     });
-    req.on("end", function () {
+    req.on("end", async function () {
       try {
         requestBody = getRequestBody(dataList);
         requestBody.userId = Math.round(Math.random() * 1000000000)
+        // // 密码加密
+        // const hash = crypto.createHash('sha256');
+        // hash.update(requestBody.password);
+        // requestBody.password = hash.digest('hex')
         // 密码加密
-        const hash = crypto.createHash('sha256');
-        hash.update(requestBody.password);
-        requestBody.password = hash.digest('hex')
+        requestBody.password = await new Password(requestBody.password).derive();
         //用户存储
         const user = mReadFile(USER_PATH);
         user.push(requestBody);//帖子name和content
@@ -72,20 +70,25 @@ server.on("request", (req, res) => {
     req.on("data", function (chunk) {
       dataList.push(chunk);
     });
-    req.on("end", function () {
+    req.on("end", async function () {
       try {
         requestBody = getRequestBody(dataList);
         //读取用户文件，校验用户密码是否正确
-        const user = mReadFile(USER_PATH);
-        const userLogin = user.findIndex(bi => bi.name === requestBody.name)
+        const users = mReadFile(USER_PATH);
+        const userLogin = users.findIndex(bi => bi.name === requestBody.name)
         if (userLogin >= 0) {
-          // 密码加密与对比
-          const hash = crypto.createHash('sha256');
-          hash.update(requestBody.password);
-          requestBody.password = hash.digest('hex')
+          const user = users[userLogin];
+          // // 密码加密与对比
+          // const hash = crypto.createHash('sha256');
+          // hash.update(requestBody.password);
+          // requestBody.password = hash.digest('hex')
 
-          if (user[userLogin].password === requestBody.password) {
-            res.end(JSON.stringify({ code: 'success', user: user[userLogin] }));
+          // if (user.password === requestBody.password) {
+          // 密码加密与对比
+          if (await new Password(requestBody.password).verify(user.password)) {
+            res
+              .setHeader('set-cookie', `userId=${user.userId}; Max-Age=2592000; Path=/`)
+              .end(JSON.stringify({ code: 'success', user }));
           } else {
             res.end(JSON.stringify({ code: 'wrongPwd' }));
           }
@@ -100,14 +103,107 @@ server.on("request", (req, res) => {
     return;
   }
 
+  //加密测试接口
+  // hash
+  if (req.url === "/post/api/testHash") {
+    var dataList = [];
+    var requestBody = {};
+    res.setHeader("Content-type", `${lookup(absPath)};charset=utf-8`);
+    req.on("data", function (chunk) {
+      dataList.push(chunk);
+    });
+    req.on("end", function () {
+      try {
+        requestBody = getRequestBody(dataList);
+        //获取加密模块支持的所有哈希算法
+        const hashes = crypto.getHashes();
+        //创建Hash对象，指定算法，此处示例为md5
+        const hash = crypto.createHash('md5');
+        //更新待计算哈希值的原文，可多次调用
+        hash.update(requestBody.inputData, 'utf8');
+        //输出哈希值，此处指定输出结果为16进制
+        const result = hash.digest('hex');
+        res.end(JSON.stringify(result));
+      } catch (error) {
+        console.log(error);
+      }
+    });
+    return;
+  }
+  // 对称加密
+  if (req.url === "/post/api/testCipheriv") {
+    var dataList = [];
+    var requestBody = {};
+    res.setHeader("Content-type", `${lookup(absPath)};charset=utf-8`);
+    req.on("data", function (chunk) {
+      dataList.push(chunk);
+    });
+    req.on("end", function () {
+      try {
+        const algorithm = 'aes-192-cbc';
+        const password = 'pwd';
+
+        //通过scrypt函数生成key，key的长度和加密算法有关，aes192则要求key为192位（24字节）
+        crypto.scrypt(password, 'salt', 24, (err, key) => {
+          if (err) throw err;
+          //通过randomFill生成随机的初始化向量,固定为16字节
+          crypto.randomFill(new Uint8Array(16), (err, iv) => {
+            if (err) throw err;
+            //创建Cipher对象,指定其算法，秘钥，初始化向量
+            const cipher = crypto.createCipheriv(algorithm, key, iv);
+            //传入待加密内容，会获取加密片段
+            let encrypted = cipher.update('一二三四伍六七', 'utf8', 'hex');
+            //获取剩余加密内容，并和之前加密片段相加，即得到最终加密结果
+            encrypted += cipher.final('hex');
+            console.log('3333333', encrypted);
+            res.end(JSON.stringify(encrypted));
+          });
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    });
+    return;
+  }
+
+  // 对称解密，原文：some clear text data
+  if (req.url === "/post/api/testDecipheriv") {
+    var dataList = [];
+    var requestBody = {};
+    res.setHeader("Content-type", `${lookup(absPath)};charset=utf-8`);
+    req.on("data", function (chunk) {
+      dataList.push(chunk);
+    });
+    req.on("end", function () {
+      try {
+        const algorithm = 'aes-192-cbc';
+        const password = 'Password used to generate key';
+        const encrypted = 'e5f79c5915c02171eec6b212d5520d44480993d7d622a7c4c2da32f6efda0ffa';
+        //使用加密时的密码生成解密的秘钥，必须与加密时秘钥一致
+        crypto.scrypt(password, 'salt', 24, (err, key) => {
+          if (err) throw err;
+          //创建初始化向量
+          const iv = Buffer.alloc(16, 0);
+          const decipher = crypto.createDecipheriv(algorithm, key, iv);
+          //传入待解密内容，会获取解密后片段
+          let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+          //获取剩余解密内容，并和之前解密片段相加，即得到最终解密结果
+          decrypted += decipher.final('utf8');
+          res.end(JSON.stringify(decrypted));
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    });
+    return;
+  }
+
+
   // 获取博客接口
   if (req.url === "/get/api/getList") {
     absPath = RELATION_PATH;
   }
-  // 获取用户接口
-  if (req.url === "/post/api/postUser") {
-    absPath = USER_PATH;
-  }
+
   // 提交博客接口
   if (req.url === "/post/api/postList") {
     var dataList = [];
@@ -241,6 +337,10 @@ server.on("request", (req, res) => {
   // regist.html
   if (req.url === "/regist") {
     absPath = join(absPath, "regist.html");
+  }
+  // demo.html
+  if (req.url === "/demo") {
+    absPath = join(absPath, "demo.html");
   }
   //所有帖子 同步读取文件，结果转化为字符串，解析JSON字符串转化为JS对象
   const articles = mReadFile(ARTICLE_PATH);
