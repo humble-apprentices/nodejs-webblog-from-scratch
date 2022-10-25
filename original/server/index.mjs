@@ -17,7 +17,38 @@ const getPath = (url) => {
 const { __dirname } = getPath(import.meta.url);
 
 const server = createServer();
+const USER_PATH = join(__dirname, "../../database", "user.json");
+const ARTICLE_PATH = join(__dirname, "../../database", "allarticle.json");
+const COMMENT_PATH = join(__dirname, "../../database", "comment.json");
+const RELATION_PATH = join(__dirname, "../../database", "mappingRelations.json");
+const USER_ALLARTICLE = join(__dirname, "../../database", "userAllarticle.json");
+const USER_COMMENT = join(__dirname, "../../database", "userComment.json");
+
+const auth = (req, res) => {
+  const matched = req.headers?.['cookie']?.match?.(/userId=(\d+)/)?.[1];
+
+  const user = matched
+    && mReadFile(USER_PATH).find(u => u.userId === Number(matched));
+
+  if (user) {
+    return user;
+  }
+
+  // if (!req.url.startsWith('/login') || !req.url.startsWith('/favicon.ico')) {
+  //   console.log(3333, req.url)
+  //   res.statusCode = 302;
+  //   res
+  //     .setHeader('location', '/login')
+  //     // .end();
+  // }
+
+  return null;
+};
+
 server.on("request", (req, res) => {
+
+  const user = auth(req, res);
+
   console.log(req.url);
   console.log(req.method);
   // 静态服务处理不同的文件
@@ -26,12 +57,7 @@ server.on("request", (req, res) => {
   pathname = decodeURIComponent(pathname);
   // 动态生成相对路径
   let absPath = join(__dirname, "../www", pathname);
-  const USER_PATH = join(__dirname, "../../database", "user.json");
-  const ARTICLE_PATH = join(__dirname, "../../database", "allarticle.json");
-  const COMMENT_PATH = join(__dirname, "../../database", "comment.json");
-  const RELATION_PATH = join(__dirname, "../../database", "mappingRelations.json");
-  const USER_ALLARTICLE = join(__dirname, "../../database", "userAllarticle.json");
-  const USER_COMMENT = join(__dirname, "../../database", "userComment.json");
+
 
   // 注册接口
   if (req.url === "/post/api/regist") {
