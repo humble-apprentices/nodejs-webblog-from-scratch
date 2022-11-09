@@ -59,6 +59,15 @@ server.on('request', (req, res) => {
     if (statObj.isDirectory()) {
       absPath = join(absPath, 'index.html');
     }
+    if (statObj.isDirectory()) {
+      absPath = join(absPath, 'login.html');
+    }
+    if (statObj.isDirectory()) {
+      absPath = join(absPath, 'regist.html');
+    }
+    if (statObj.isDirectory()) {
+      absPath = join(absPath, 'demo.html');
+    }
     readFile(absPath, (err, data) => {
       console.log(absPath);
       if (err) {

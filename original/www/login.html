@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>博客</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div>
+      <h1>登录</h1>
+    </div>
+    <div>
+      <div>
+        <label>昵称: </label>
+        <input id="set_name" />
+      </div>
+      <div class="m-t-10">
+        <label>密码: </label>
+        <input id="set_content" type="password"></input>
+      </div>
+      <button class="m-t-10" id="post-buttom">登录</button>
+      <a href="/regist">注册</a>
+    </div>
+
+  </div>
+  <script>
+    var request = new XMLHttpRequest();
+    document.getElementById("post-buttom").onclick = login;
+
+    // 登录
+    function login() {
+      request.onreadystatechange = function () {
+        // 状态发生变化时，函数被回调
+        if (request.readyState === 4) {
+          if (request.status === 200) {
+            const data = JSON.parse(request.responseText);
+            if (data.code === 'success') {
+              alert('登录成功')
+              const url = "http://localhost:3000/index.html?userId=" + data.user.userId + "&name=" + data.user.name;
+              window.location.href = url;
+            } else if (data.code === 'wrongPwd') {
+              alert('密码错误')
+            } else {
+              alert('用户未注册')
+            }
+          }
+        }
+      };
+      // 发送请求:
+      request.open("POST", "post/api/login");
+      request.setRequestHeader("Content-type", "application/json");
+      request.send(
+        JSON.stringify({
+          name: document.getElementById("set_name").value,
+          password: document.getElementById("set_content").value,
+        })
+      );
+    }
+  </script>
+</body>
+
+</html>

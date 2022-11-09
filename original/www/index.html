@@ -16,8 +16,8 @@
     </div>
     <div>
       <div>
-        <label>昵称: </label>
-        <input id="set_name" />
+        <span>昵称: </span>
+        <input id="set_name" disabled />
       </div>
       <div class="m-t-10">
         <label>内容: </label>
@@ -31,6 +31,11 @@
     <div id="blog"></div>
   </div>
   <script>
+
+    const userId = getCookieValue('userId');
+    const name = getCookieValue('username');
+    document.getElementById("set_name").value = name;
+
     var request = new XMLHttpRequest();
     document.getElementById("post-buttom").onclick = postList;
     // 循环展示博客列表
@@ -81,7 +86,6 @@
         // 评论
         if (item.children) { //如果有评论
           oElement = document.createElement("ul");
-          console.log("777777777", item.children);
           item.children.forEach(v => {
             oComment = document.createElement("li");
             oComment.innerHTML = v[1];
@@ -119,6 +123,7 @@
       request.open("GET", "get/api/getList");
       request.send();
     }
+
     // 上传博客
     function postList() {
       request.onreadystatechange = function () {
@@ -136,6 +141,7 @@
         JSON.stringify({
           name: document.getElementById("set_name").value,
           content: document.getElementById("set_content").value,
+          userId: getCookieValue('userId')
         })
       );
     }
@@ -192,9 +198,12 @@
       request.open("POST", "post/api/submitComment");
       request.setRequestHeader("Content-type", "application/json");
       request.send(
-        JSON.stringify(
-          [index, content]
-        )
+        JSON.stringify({
+          index: index,
+          commentId: new Date().getTime().toString(),
+          content: content,
+          userId: getCookieValue('userId')
+        })
       );
     }
     // 删除评论
@@ -213,9 +222,13 @@
       request.send(
         JSON.stringify({
           index: index,
-          time, time
+          time: time
         })
       );
+    }
+    function getCookieValue(name) {
+      let reg = new RegExp(`${name}=(\\w+)`, "i");
+      return document.cookie.match(reg)?.[1];
     }
     // 执行
     getList();
