@@ -1,0 +1,34 @@
+body {
+  background-color: #f9f9f9;
+  width: 1000px;
+  margin: 0 auto;
+}
+.container {
+  padding: 20px;
+  align-items: center;
+}
+
+.article-name {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1.2em;
+  padding-left: 32px;
+}
+.article-name::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 1em;
+  background: #409EFF;
+  border-radius: 2px;
+}
+.article-content {
+  margin: 10px 0;
+}

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { readFile, writeFile, readFileSync, writeFileSync } from "node:fs";
+import { readFile, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath, parse } from "node:url";
 import { join, dirname } from "node:path";
 import { lookup } from "es-mime-types";

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>博客</title>
+  <link rel="stylesheet" href="./style.css" />
+  <!-- <link href="./element.css" rel="stylesheet"> -->
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.10/theme-chalk/index.css">
+</head>
+
+<body>
+  <div class="container">
+    <div>
+      <h1>提交我的博客</h1>
+    </div>
+    <div style="width: 600px">
+      <el-form :model="formModel" label-width="60px" ref="formRef">
+        <el-form-item label="昵称" prop="name" required>
+          <el-input v-model="formModel.name" readonly></el-input>
+        </el-form-item>
+        <el-form-item label="内容" prop="content" required>
+          <el-input type="textarea" rows="4" v-model="formModel.content"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" size="small" @click="addBlog" v-text="'提交'"></el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <div>
+      <h1>博客目录</h1>
+    </div>
+    <el-card style="margin-bottom: 12px;" v-for="item in blogList" :key="item.id">
+      <div class="article-name" slot="header">
+          <span v-text="item.name"></span>
+          <el-button type="danger" @click="remove(item.id)" size="mini">删除</el-button>
+      </div>
+      <div class="article-content" v-text="item.content"></div>
+    </el-card>
+  </div>
+  <script src="./vue.min.js"></script>
+  <!-- <script src="./element.js"></script> -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.10/index.js"></script>
+  <script src="./axios.js"></script>
+  <script src="./instance.js"></script>
+  <script>
+    const app = new Vue({
+      el: '.container',
+      data: {
+        formModel: {
+          name: '',
+          content: ''
+        },
+        blogList: []
+      },
+      mounted() {
+        const userStr = localStorage.getItem('userInfo') || '{}';
+        const userInfo = JSON.parse(userStr);
+        if (!userInfo.userId) return window.location.href= './login.html';
+        this.formModel.name = userInfo.name
+        this.getBlogList()
+      },
+      methods: {
+        getBlogList() {
+          axiosInstance.get('/api/article/list').then(function (res) {
+            const {
+              data
+            } = res.data || [];
+            app.blogList = data;
+          })
+        },
+        addBlog() {
+          this.$refs.formRef.validate((valid) => {
+            if (valid) {
+              axiosInstance.post('/api/article/add', {
+                ...app.formModel
+              }).then(function (res) {
+                const {
+                  data
+                } = res.data || null;
+                data && app.blogList.unshift(data);
+                console.log(app.blogList)
+              })
+            }
+          })
+        },
+        remove(id) {
+          axiosInstance.post('/api/article/delete', {
+            id
+          }).then(function (res) {
+            app.blogList = app.blogList.filter(item => item.id !== id)
+            app.$message.success('删除成功');
+          })
+        }
+      }
+    });
+
+  </script>
+</body>
+
+</html>
