@@ -4,10 +4,6 @@ import compose from "./compose.mjs";
 
 export default class Application extends Emitter {
   middleware = [];
-  ctx = {
-    req: null,
-    res: null,
-  };
   constructor() {
     super();
     return this;
@@ -20,35 +16,36 @@ export default class Application extends Emitter {
   serverCallback() {
     const fn = compose(this.middleware);
     return (req, res) => {
-      this.createContext(req, res);
+      const ctx = this.createContext(req, res);
       const onerror = (err) => {
         this.emit("error", err);
       };
       const handleResponse = () => {
-        res.end(this.ctx.body);
+        res.end(ctx.body);
         console.log("服务响应完成了");
       };
-      return fn(this.ctx).then(handleResponse).catch(onerror);
+      return fn(ctx).then(handleResponse).catch(onerror);
     };
   }
   use(fn) {
     this.middleware.push(fn);
   }
   createContext(req, res) {
-    this.ctx.req = req;
-    this.ctx.res = res;
-    this.app = this;
-    this.ctx.body = ''
-    this.ctx.status = {
-      get () {
-        return res.statusCode
+    const ctx = {};
+    ctx.req = req;
+    ctx.res = res;
+    ctx.app = this;
+    ctx.body = "";
+    ctx.status = {
+      get() {
+        return res.statusCode;
       },
-      set (code) {
-        res.statusCode = code
-      }
+      set(code) {
+        res.statusCode = code;
+      },
     };
-    this.ctx.setHeader = (name, value) => {
+    ctx.setHeader = (name, value) => {
       res.setHeader(name, value);
-    }
+    };
   }
 }

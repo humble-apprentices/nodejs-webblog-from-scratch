@@ -14,9 +14,9 @@ router.get("/api/article/list", async (ctx, next) => {
     data: null,
     message: "success",
   };
-  ctx.status = 200;
+  ctx.statusCode = 200;
   try {
-    result.data = getArticles();
+    result.data = await getArticles();
   } catch (error) {
     result.code = 1;
     result.message = error.message;
@@ -37,7 +37,7 @@ router.post("/api/article/add", async (ctx, next) => {
   const data = await parsePostData(req);
   ctx.status = 200;
   try {
-    const article = addArticle(data);
+    const article = await addArticle(data);
     result.data = article;
   } catch (error) {
     result.code = 1;
@@ -59,9 +59,9 @@ router.post("/api/article/delete", async (ctx, next) => {
   const data = await parsePostData(req);
   ctx.status = 200;
   try {
-    const article = findArticleById(data.id);
+    const article = await findArticleById(data.id);
     if (article) {
-      const article = deleteArticleById(data.id);
+      const article = await deleteArticleById(data.id);
       result.data = article;
     } else {
       result.message = "文章不存在";

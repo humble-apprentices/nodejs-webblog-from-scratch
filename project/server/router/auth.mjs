@@ -15,13 +15,12 @@ router.post("/api/user/login", async (ctx, next) => {
   try {
     const { name, password } = await parsePostData(req);
     //读取用户文件，校验用户密码是否正确
-    const user = findUserByName(name);
+    const user = await findUserByName(name);
     if (user) {
       // 密码加密与对比
       if (password === user.password) {
-        const sessiont = createSession(user.userId);
-        ctx
-        .setHeader(
+        const sessiont = await createSession(user.userId);
+        ctx.setHeader(
           "set-cookie",
           `session=${JSON.stringify(sessiont)}; Max-Age=2592000; Path=/`
         );
@@ -54,14 +53,13 @@ router.post("/api/user/register", async (ctx, next) => {
   };
   try {
     const { name, password } = await parsePostData(req);
-    const user = registerUser(name, password);
-    const sessiont = createSession(user.userId);
+    const user = await registerUser(name, password);
+    const sessiont = await createSession(user.userId);
     if (user) {
-      ctx
-        .setHeader(
-          "set-cookie",
-          `session=${JSON.stringify(sessiont)}; Max-Age=2592000; Path=/`
-        )
+      ctx.setHeader(
+        "set-cookie",
+        `session=${JSON.stringify(sessiont)}; Max-Age=2592000; Path=/`
+      );
       result.data = user;
     } else {
       result.code = 1;
