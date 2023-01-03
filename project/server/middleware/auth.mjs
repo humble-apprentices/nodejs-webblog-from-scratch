@@ -8,7 +8,7 @@ export async function auth(ctx, next) {
     const { req } = ctx;
     getCookie("session", req.headers["cookie"]);
     const cookie = getCookie("session", req.headers["cookie"]);
-    const session = JSON.parse(cookie);
+    const session = JSON.parse(cookie || '{}');
     const whiteList = ["/api/user/login", "/api/user/register"];
     if (
       whiteList.find((url) => req.url.startsWith(url)) ||

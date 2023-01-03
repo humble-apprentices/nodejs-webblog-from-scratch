@@ -47,5 +47,6 @@ export default class Application extends Emitter {
     ctx.setHeader = (name, value) => {
       res.setHeader(name, value);
     };
+    return ctx;
   }
 }
